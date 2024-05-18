@@ -28,9 +28,11 @@ Here's is a demo:
 ```shell
     $ git clone git@github.com:Cyrus-0101/chui.git
 
-    $ cd chui
+    $ cd chui/src
 
-    $ go build -o chui-fibonacci cmd/fibonacci/main.go
+    $ go run main.go
+
+    $ go build -o chui 
 
     $ ./ch
 
