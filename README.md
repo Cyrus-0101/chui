@@ -26,20 +26,29 @@ Here's is a demo:
 - Open you terminal/bash:
 
 ```shell
+    # Clone the repo
     $ git clone git@github.com:Cyrus-0101/chui.git
 
+    # Navigate to the src folder
     $ cd chui/src
 
+    # Run the main application
     $ go run main.go
 
+    # Build the application
     $ go build -o build main.go
 
-    $ ./ch
+    # Run the executable application if on Windows
+    $ ./build/main.exe
+
+    # Run the build on Linux/Mac OS
+    $ ./build/main
 
     # Generate a coverage report
     $ go tool cover -html cover.out -o cover.html
 
-    $ go test -v -coverfile cover.out -o cover.html ./...
+    # Run the tests with a small terminal coverage report
+    $ go test -v -coverprofile cover.out ./...
 ```
 
 - It contains:
