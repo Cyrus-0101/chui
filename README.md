@@ -32,7 +32,7 @@ Here's is a demo:
 
     $ go run main.go
 
-    $ go build -o chui 
+    $ go build -o build main.go
 
     $ ./ch
 
