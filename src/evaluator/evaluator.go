@@ -1,9 +1,9 @@
 package evaluator
 
 import (
-	"fmt"
 	"chui/ast"
 	"chui/object"
+	"fmt"
 )
 
 var (
