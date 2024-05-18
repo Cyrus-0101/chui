@@ -34,6 +34,9 @@ Here's is a demo:
 
     $ ./ch
 
+    # Generate a coverage report
+    $ go tool cover -html cover.out -o cover.html
+
     $ go test -v -coverfile cover.out -o cover.html ./...
 ```
 
