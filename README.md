@@ -21,6 +21,22 @@ Here's is a demo:
 
 - Yeap you read that right! 3 times faster without low-level tweaking or mind blowing optimizations.
 
+- To run the code above, you need to have Golang installed on your machine. You can download it [here](https://golang.org/dl/).
+
+- Open you terminal/bash:
+
+```shell
+    $ git clone git@github.com:Cyrus-0101/chui.git
+
+    $ cd chui
+
+    $ go build -o chui-fibonacci cmd/fibonacci/main.go
+
+    $ ./ch
+
+    $ go test -v -coverfile cover.out -o cover.html ./...
+```
+
 - It contains:
     - [x] C-ish syntax
     - [x] Prefix-, infix- and index operators
