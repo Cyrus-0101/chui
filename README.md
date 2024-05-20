@@ -355,7 +355,7 @@ cyrus("name"); // Cyrus
 
 - Lets see how the flow of data structures will look like:
 
-    ![Data Structures Flow](/assets/data-structures-flow.png)
+    ![Data Structures Flow](/assets/data-structure-flow.png)
 
 - From the above we can that we can handle the flow up till the AST; then we begin the hunger games of the compiler and VM, i.e define bytecode instruction, build the compiler and the VM.
 
