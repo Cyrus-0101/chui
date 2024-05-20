@@ -313,7 +313,7 @@ cyrus("name"); // Cyrus
 
 - The above is a very high level overview of the lifecycle of a compiler. There are thousands of variations possible. And then again, a compiler doesn’t even have to be a tool you run on the command line, that reads in source code and outputs code in a file, like gcc or go. It can just as well be a single function that takes in an AST and returns a string. That’s also a compiler. A compiler can be written in a few hundred lines of code or have millions of them. But underlying all of these lines of code is the fundamental idea of translation.
 
-## Virtual Machines & Real Machines.
+### Virtual Machines & Real Machines.
 
 - We probably associate “virtual machine” with software like VMWare or Virtualbox. These are programs that emulate a computer, including a disk drive, hard drive, graphics card, etc. They allow you to, for example, run a different operating system inside this emulated computer. Yes, these are virtual machines.
 
@@ -335,4 +335,47 @@ cyrus("name"); // Cyrus
 
   ![Von Neumann Architecture](/assets/von-neumann-architecture.png)
 
-- 
+## Bytecode
+
+- Here we simply want to compile and execute the following Chui expression:
+
+> 2 + 2
+
+- We will discuss how to:
+1. Take the expression 2 + 2
+1. Tokenize and Parse using our existing `lexer`,`token` and `parser` packages.
+1. Take the resulting AST - nodes defined in `ast` package.
+1. Pass it to the new compiler, which compiles the AST into bytecode.
+1. Pass the bytecode to the new VM, which executes it.
+1. Make sure the VM turned it into `4`.
+
+- The above expression will travel through all the major parts of our new interpreter:
+
+    ![Interpreter Flow](/assets/interpreter-flow.png)
+
+- Lets see how the flow of data structures will look like:
+
+    ![Data Structures Flow](/assets/data-structures-flow.png)
+
+- From the above we can that we can handle the flow up till the AST; then we begin the hunger games of the compiler and VM, i.e define bytecode instruction, build the compiler and the VM.
+
+- The architecture of the virtual machine is the biggest influence on what the bytecode will look like, this means a decision has to be made on the direcion of the build.
+
+- We will build a stack-based VM, which is the most common type of VM. This means that the VM will have a stack, which is a data structure that allows you to push and pop values. The stack is the only place where the VM can store values. Less complex compared to register machine, more moving parts, more concepts.
+
+- We will begin by gettinf the operands `2` and `2` onto the stack and tell the VM `add them`, which takes the two topmost values from the stack, adds them, and pushes the result back onto the stack. Here is a before and after of the stack:
+
+    |  2  |  4  |
+    | --  | --  |
+    |  2  |     |
+    |     |     |
+    Before| After
+
+- The instructions to our VM will be:
+1. Push 2 to the stack
+1. Push 2 to the stack
+1. Add the two topmost values on the stack.
+
+- We can see we need to implement two instruction types in total: One for pushing to the stack and another for adding values in the stack.
+
+- Let's define the opcodes and how they are encoded in bytecode, then extend the compiler to generate instructions, then create a VM that decodes and executes the instructions. We'll create a new package `code` to define the bytecode instructions and the compiler.
