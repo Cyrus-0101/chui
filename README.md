@@ -4,6 +4,8 @@
 
 - A hobbyist functional programming language and interpreter project done in Golang as a way of understanding Golang.
 
+> Inspired by Thorsten Ball's books, "Writing an Interpreter in Go" and "Writing a Compiler in Go". All credit goes to him for the inspiration.
+
 ## Introduction
 - The goal of this project is to turn a `tree-walking, on-the-fly evaluating interpreter` into a `bytecode compiler` and a `virtual machine` that executes the bytecode.
 
