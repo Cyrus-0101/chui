@@ -291,7 +291,7 @@ cyrus("name"); // Cyrus
 
 - Virtual machines are also largely misunderstood mystical virtual creatures. Some say they have something to do with compilers as shown above. Others claim that virtual machines allow them to run an operating system within an operating system. The truth is, all of that is true!
 
-- Wikipidia defines a compiler as:
+- Wikipedia defines a compiler as:
 
   > A compiler is computer software that transforms computer code written in one programming language (the source language) into another computer language (the target language). Compilers are a type of translator that support digital devices, primarily computers. The name compiler is primarily used for programs that translate source code from a high-level programming language to a lower level language(e g., assembly language, object code, or machine code) to create an executable program.
 
@@ -317,7 +317,7 @@ cyrus("name"); // Cyrus
 
 - We probably associate “virtual machine” with software like VMWare or Virtualbox. These are programs that emulate a computer, including a disk drive, hard drive, graphics card, etc. They allow you to, for example, run a different operating system inside this emulated computer. Yes, these are virtual machines.
 
-- We will discuss (and later build), virtual machines used to implement programming languages. It's worth noting `VM's (in this instance) do not emulate an existing machine; They are the machine`. Virtual simply means software.
+- We will discuss (and later build), virtual machines used to implement programming languages. It's worth noting `VM's (in this instance) do not emulate an existing machine; They are the machine`. Virtual simply means software. [Here is a perfect example of a simple VM written in JS.](/assets/virtualMachine.js)
 
 - The machine describes their behaviour, these software constructs act and mimic the behaviour of hwo a real machine works, computers. This means we need to understand how computers work in order to understand how virtual machines work.
 
@@ -329,8 +329,10 @@ cyrus("name"); // Cyrus
 
   1. A Processing Unit: Which contains an Arithmetic Logic Unit (ALU) and multiple process registers, and a control unit, with an instruction register and a program counter. Together they're known as the Central Processing Unit (CPU).
 
-  2. A Memory: This is where the CPU reads and writes data. The memory is a long list of slots, each of which can hold a number. The CPU can read from memory, write to memory, and perform arithmetic on the numbers in memory. Such include: `Read Only Memory (ROM), `Random Access Memory (RAM), Hard Drives, etc.
+  2. A Memory: This is where the CPU reads and writes data. The memory is a long list of slots, each of which can hold a number. The CPU can read from memory, write to memory, and perform arithmetic on the numbers in memory. Such include: `Read Only Memory (ROM)`, `Random Access Memory (RAM)`, `Hard Drives`, etc.
 
 - Below is a diagram of the Von Neumann Architecture:
 
   ![Von Neumann Architecture](/assets/von-neumann-architecture.png)
+
+- 
