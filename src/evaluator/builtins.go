@@ -1,8 +1,8 @@
 package evaluator
 
 import (
-	"fmt"
 	"chui/object"
+	"fmt"
 )
 
 var builtins = map[string]*object.Builtin{

@@ -45,6 +45,7 @@ const (
 	IF       = "IF"
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
+	MACRO    = "MACRO"
 )
 
 type Token struct {
@@ -53,13 +54,14 @@ type Token struct {
 }
 
 var keywords = map[string]TokenType{
-	"func":     FUNCTION,
+	"func":   FUNCTION,
 	"let":    LET,
 	"true":   TRUE,
 	"false":  FALSE,
 	"if":     IF,
 	"else":   ELSE,
 	"return": RETURN,
+	"macro":  MACRO,
 }
 
 func LookupIdent(ident string) TokenType {
