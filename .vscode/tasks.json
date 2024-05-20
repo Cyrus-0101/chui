@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "options": {
+      "cwd": "${workspaceFolder}/src"
+    },
+    "tasks": [
+      {
+        "label": "build",
+        "command": "go",
+        "type": "process",
+        "args": ["build", "main.go"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": "$msCompile"
+      },
+      {
+        "label": "test",
+        "command": "go",
+        "type": "process",
+        "args": ["test", "./..."],
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        },
+        "problemMatcher": "$msCompile",
+        
+      },
+      {
+        "label": "runin",
+        "command": "go",
+        "type": "process",
+        "args": ["run", "main.go"],
+        "group": {
+          "kind": "none",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+        },
+        "problemMatcher": "$msCompile",
+      },
+    ]
+  }

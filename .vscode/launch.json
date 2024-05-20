@@ -5,11 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Package",
+            "name": "Launch Go App",
             "type": "go",
             "request": "launch",
+            "preLaunchTask": "test",
             "mode": "auto",
-            "program": "${fileDirname}"
+            "program": "src/main.go",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "console": "externalTerminal",
+            "stopOnEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "Go Attach",
+            "type": "go",
+            "request": "attach"
         }
     ]
 }
