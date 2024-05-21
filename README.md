@@ -4,6 +4,8 @@
 
 - A hobbyist functional programming language and interpreter project done in Golang as a way of understanding Golang.
 
+> Inspired by Thorsten Ball's books, "Writing an Interpreter in Go" and "Writing a Compiler in Go". All credit goes to him for the inspiration.
+
 ## Introduction
 - The goal of this project is to turn a `tree-walking, on-the-fly evaluating interpreter` into a `bytecode compiler` and a `virtual machine` that executes the bytecode.
 
@@ -300,8 +302,9 @@ cyrus("name"); // Cyrus
 - The above might sound counter-intuitive, that interpreters and compilers are opposites, but while their approach is different, they share a lot of things in their construction. They both have a frontend that reads in source code in the source language, and turns it into a data structure.
 
 - In both, compiler and interpreter, the frontend is usually made up of a lexer and a parser, that generate a syntax tree. In the frontend they have similarities, after that when they both traverse the AST, their paths diverge.
+
 - Let's take a look at the lifecycle of code being translated to machine code below:
-  ![Compiler Lifecycle](/assets/compiler-lifecycle.png)
+    ![Compiler Lifecycle](/assets/compiler-lifecycle.png)
 
 1. The source code is tokenized and parsed by the lexer and parser respectively. This is the frontend. The source code is turned from text to AST.
 
@@ -379,3 +382,32 @@ cyrus("name"); // Cyrus
 - We can see we need to implement two instruction types in total: One for pushing to the stack and another for adding values in the stack.
 
 - Let's define the opcodes and how they are encoded in bytecode, then extend the compiler to generate instructions, then create a VM that decodes and executes the instructions. We'll create a new package `code` to define the bytecode instructions and the compiler.
+
+- What we know is that bytecode is made up of instructions, which are a series of bytes, and a single instruction is 1 byte wide.
+
+- In our `code` package we create instructions - a slice of bytes - and an `Opcode` byte. We define `Instructions []byte`, because its far more easy to  work around with a `[]byte`, and treat it implicitly than encode definitions in Go's type system.
+
+- `Bytecode` definition is missing because we'd run into a nasty import-cycle if we defined it in the `code` package. We will define it in the `compiler` package, later.
+
+- What if later on we wanted to push other things to the stack from our Chui code? String literals, for example. Putting those into the bytecode is also possible, since it’s just made of bytes, but it would also be a lot of bloat and would sooner
+or later become unwieldy.
+
+- That's where `constants` come into play. In this context, “constant” is short for “constant expression” and refers to expressions whose value doesn’t change, is constant, and can be determined at compile time:
+
+    ![Constants](/assets/constants.png)
+
+- This means we don't have to run the program to know what expressions evaluate to. A compiler can find them in the code and store the value they evaluate to. Then it can reference the constants in the instructions it generates, instead of embedding values directly in them. The resulting data structure is an integer abd can serve as an index to the data structure that holds all constants, known as `constant pool`, which is what our compiler will do.
+
+- When we get an integer literal (a constant expression) during compiling, we’ll evaluate it & keep track of the resulting *object.Integer, by storing it in memory and assigning it a number.
+- In the bytecode instructions we’ll refer to the *object.Integer by this number, when compiling is done and we pass the instructions to the VM for execution, we’ll also hand over all the constants found putting them in a data structure – our constant pool – where the number that has been assigned to each constant can be used as an index to retrieve it.
+
+- Each definition will have an Op prefix and the value in reference will be determined by `iota`, it (`iota`) will generate increasing byte values, because we don’t care about the actual values our opcodes represent. They only need to
+be distinct from each other and fit in one byte, `iota` makes sure of that for us.
+
+- The definition for `OpConstant` says that its only operand is two bytes wide, making it a `uint16`, limiting the maximum value to `65535`. - If we include `0` the number of representable values is then `65536`, which should be enough, since I don’t think we’re going to reference
+more than `65536` constants in our Chui programs.
+- This means using a `uint16` instead of, say, a
+`uint32`, helps keep the resulting instructions smaller, because of less unused bytes.
+
+- We want end to end as soon as possible, and not a system that can only be turned on once it’s feature-complete, our goal in this [PR #1](https://github.com/Cyrus-0101/chui/pull/1) is to build the smallest possible compiler, that should only do one thing for now: produce two `OpConstant` instructions that later instruct the VM to correctly load the integers 2 and 2 on to the stack.
+- In order to achieve that, the minimal compiler has to: traverse the AST passed, find the *ast.IntegerLiteral nodes, evaluate them by turning them into *object.Integer objects, add the objects to the `constant pool`, and finally emit `OpConstant` instructions that reference the constants in said pool.

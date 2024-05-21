@@ -1,3 +1,6 @@
+// Package object defines the object types used.
+//
+// It includes various object types such as integers, booleans, strings, arrays, hashes, functions, and more.
 package object
 
 import (
@@ -8,6 +11,7 @@ import (
 	"strings"
 )
 
+// Each object type implements the Object interface, which provides methods for type identification and inspection.
 type BuiltinFunction func(args ...Object) Object
 
 type ObjectType string

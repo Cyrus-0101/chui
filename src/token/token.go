@@ -1,3 +1,6 @@
+// Package token defines the token types used in the lexer.
+//
+// It includes token types for identifiers, literals, operators, delimiters, and keywords.
 package token
 
 type TokenType string

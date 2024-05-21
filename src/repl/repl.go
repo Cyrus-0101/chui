@@ -1,21 +1,25 @@
+// Package contains the implementation of the REPL (Read-Eval-Print Loop).
+//
+// The REPL reads input from the user, evaluates it, and prints the result.
 package repl
 
 import (
 	"bufio"
-	"chui/evaluator"
+	"chui/compiler"
 	"chui/lexer"
-	"chui/object"
 	"chui/parser"
+	"chui/vm"
 	"fmt"
 	"io"
 )
 
 const PROMPT = ">> "
 
+// Start initializes and runs the REPL (Read-Eval-Print Loop).
+// It takes an input reader and an output writer as parameters.
+// The function continuously reads input from the reader, evaluates it, and prints the result to the writer.
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnvironment()
-	macroEnv := object.NewEnvironment()
 
 	for {
 		fmt.Fprint(out, PROMPT)
@@ -34,15 +38,24 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluator.DefineMacros(program, macroEnv)
-		expanded := evaluator.ExpandMacros(program, macroEnv)
-
-		evaluated := evaluator.Eval(expanded, env)
-
-		if evaluated != nil {
-			io.WriteString(out, evaluated.Inspect())
-			io.WriteString(out, "\n")
+		comp := compiler.New()
+		err := comp.Compile(program)
+		if err != nil {
+			fmt.Fprintf(out, "Woops! Compilation failed:\n%s\n", err)
+			continue
 		}
+
+		machine := vm.New(comp.Bytecode())
+		err = machine.Run()
+		if err != nil {
+			fmt.Fprintf(out, "Woops! Executing bytecode failed:\n%s\n", err)
+			continue
+		}
+
+		stackTop := machine.StackTop()
+		io.WriteString(out, stackTop.Inspect())
+		io.WriteString(out, "\n")
+
 	}
 }
 
@@ -56,6 +69,7 @@ const chui_FACE = `
 ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░                                  
 `
 
+// printParserErrors is a helper function that prints parser errors to the output writer.
 func printParserErrors(out io.Writer, errors []string) {
 	io.WriteString(out, chui_FACE)
 	io.WriteString(out, "Woops! We ran into some monkey business here!\n")
