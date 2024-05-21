@@ -7,6 +7,7 @@ import (
 	"chui/ast"
 	"chui/code"
 	"chui/object"
+	"fmt"
 )
 
 type Compiler struct {
@@ -51,6 +52,14 @@ func (c *Compiler) Compile(node ast.Node) error {
 
 		if err != nil {
 			return err
+		}
+
+		switch node.Operator {
+		case "+":
+			c.emit(code.OpAdd)
+
+		default:
+			return fmt.Errorf("unknown operator %s", node.Operator)
 		}
 
 	case *ast.IntegerLiteral:
