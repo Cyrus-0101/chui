@@ -17,15 +17,18 @@ const (
 	OpConstant Opcode = iota
 )
 
+// Definition represents the definition of an opcode, including its name and the widths of its operands, which is used to determine how many bytes to read to extract the operands.
 type Definition struct {
 	Name          string
 	OperandWidths []int
 }
 
+// definitions maps opcodes to their definitions.
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
 }
 
+// Lookup() retrieves the definition of an opcode.
 func Lookup(op byte) (*Definition, error) {
 	def, ok := definitions[Opcode(op)]
 	if !ok {
@@ -35,6 +38,7 @@ func Lookup(op byte) (*Definition, error) {
 	return def, nil
 }
 
+// Make() creates a bytecode instruction from an opcode and its operands.
 func Make(op Opcode, operands ...int) []byte {
 	def, ok := definitions[op]
 
@@ -67,6 +71,7 @@ func Make(op Opcode, operands ...int) []byte {
 	return instruction
 }
 
+// String() returns a string representation of the bytecode instructions, including the offset of each instruction in the bytecode.
 func (ins Instructions) String() string {
 	var out bytes.Buffer
 
@@ -90,6 +95,7 @@ func (ins Instructions) String() string {
 	return out.String()
 }
 
+// fmtInstruction() formats an instruction for printing.
 func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 	operandCount := len(def.OperandWidths)
 
@@ -107,6 +113,7 @@ func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", def.Name)
 }
 
+// ReadOperands() reads the operands of an instruction.
 func ReadOperands(def *Definition, ins Instructions) ([]int, int) {
 	operands := make([]int, len(def.OperandWidths))
 	offset := 0
@@ -124,6 +131,7 @@ func ReadOperands(def *Definition, ins Instructions) ([]int, int) {
 	return operands, offset
 }
 
+// ReadUint16() reads a uint16 from a byte slice.
 func ReadUint16(ins Instructions) uint16 {
 	return binary.BigEndian.Uint16(ins)
 }
