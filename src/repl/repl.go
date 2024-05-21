@@ -1,3 +1,6 @@
+// Package contains the implementation of the REPL (Read-Eval-Print Loop).
+//
+// The REPL reads input from the user, evaluates it, and prints the result.
 package repl
 
 import (
@@ -12,6 +15,9 @@ import (
 
 const PROMPT = ">> "
 
+// Start initializes and runs the REPL (Read-Eval-Print Loop).
+// It takes an input reader and an output writer as parameters.
+// The function continuously reads input from the reader, evaluates it, and prints the result to the writer.
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnvironment()
@@ -56,6 +62,7 @@ const chui_FACE = `
 ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░                                  
 `
 
+// printParserErrors is a helper function that prints parser errors to the output writer.
 func printParserErrors(out io.Writer, errors []string) {
 	io.WriteString(out, chui_FACE)
 	io.WriteString(out, "Woops! We ran into some monkey business here!\n")
