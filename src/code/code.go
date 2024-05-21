@@ -15,6 +15,7 @@ type Opcode byte
 
 const (
 	OpConstant Opcode = iota
+	OpAdd
 )
 
 // Definition represents the definition of an opcode, including its name and the widths of its operands, which is used to determine how many bytes to read to extract the operands.
@@ -26,6 +27,7 @@ type Definition struct {
 // definitions maps opcodes to their definitions.
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
+	OpAdd:      {"OpAdd", []int{}},
 }
 
 // Lookup() retrieves the definition of an opcode.
@@ -105,6 +107,9 @@ func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 	}
 
 	switch operandCount {
+
+	case 0:
+		return def.Name
 
 	case 1:
 		return fmt.Sprintf("%s %d", def.Name, operands[0])
