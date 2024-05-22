@@ -411,3 +411,15 @@ more than `65536` constants in our Chui programs.
 
 - We want end to end as soon as possible, and not a system that can only be turned on once it’s feature-complete, our goal in this [PR #1](https://github.com/Cyrus-0101/chui/pull/1) is to build the smallest possible compiler, that should only do one thing for now: produce two `OpConstant` instructions that later instruct the VM to correctly load the integers 2 and 2 on to the stack.
 - In order to achieve that, the minimal compiler has to: traverse the AST passed, find the *ast.IntegerLiteral nodes, evaluate them by turning them into *object.Integer objects, add the objects to the `constant pool`, and finally emit `OpConstant` instructions that reference the constants in said pool.
+
+## Compilation of Expressions.
+- Now that [PR #1](https://github.com/Cyrus-0101/chui/pull/1) is merged we can now work on compiling of expressions. We start by some necessary cleaning up of our infrastructure; The Stack.
+- Since we can only do addition operations [PR #2](https://github.com/Cyrus-0101/chui/pull/2), will focus on adding all supported arithmetic ops in Chui to the compiler and VM.
+- Its worth noting we have three types of statements in Chui: `let`, `return` and `expression` statements. The first two explicitly reuse the value the child nodes produce, expression statements just wrap expressions so they can occur on their own, i.e resolve to a value, and the value produced is not reused by definition. As of now we are reusing the value and thats a problem, since its involuntarily kept on the stack.
+- This means:
+```javascript
+    5;
+    10;
+    15;
+```
+- The stack stores each and every value from the program and that could fill up the stack with values not needed. To fix that we will introduce a new instruction `OpPop` that will pop the topmost element/value from the stack,and emit it after every expression statement.
