@@ -66,6 +66,9 @@ func (vm *VM) Run() error {
 			result := leftValue + rightValue
 			vm.push(&object.Integer{Value: result})
 
+		case code.OpPop:
+			vm.pop()
+
 		}
 	}
 	return nil
@@ -89,4 +92,9 @@ func (vm *VM) pop() object.Object {
 	vm.sp--
 
 	return o
+}
+
+// LastPoppedStackElem() returns the last element popped off the stack.
+func (vm *VM) LastPoppedStackElem() object.Object {
+	return vm.stack[vm.sp]
 }

@@ -16,6 +16,7 @@ type Opcode byte
 const (
 	OpConstant Opcode = iota
 	OpAdd
+	OpPop
 )
 
 // Definition represents the definition of an opcode, including its name and the widths of its operands, which is used to determine how many bytes to read to extract the operands.
@@ -28,6 +29,7 @@ type Definition struct {
 var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
 	OpAdd:      {"OpAdd", []int{}},
+	OpPop:      {"OpPop", []int{}},
 }
 
 // Lookup() retrieves the definition of an opcode.

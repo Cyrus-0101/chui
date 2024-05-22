@@ -23,8 +23,8 @@ func New() *Compiler {
 		constants:    []object.Object{},
 	}
 }
-// Compile() compiles an AST node into bytecode instructions.
 
+// Compile() compiles an AST node into bytecode instructions.
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
 
@@ -43,6 +43,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
+
+		c.emit(code.OpPop)
 
 	case *ast.InfixExpression:
 		err := c.Compile(node.Left)

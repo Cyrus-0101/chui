@@ -27,8 +27,8 @@ func parse(input string) *ast.Program {
 	p := parser.New(l)
 	return p.ParseProgram()
 }
-// testIntegerObject() tests the integer object.
 
+// testIntegerObject() tests the integer object.
 func testIntegerObject(expected int64, actual object.Object) error {
 	result, ok := actual.(*object.Integer)
 
@@ -50,6 +50,7 @@ type vmTestCase struct {
 	expected interface{}
 }
 
+// runVmTests() runs the tests for the VM.
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
@@ -70,12 +71,13 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 			t.Fatalf("vm error: %s", err)
 		}
 
-		stackElem := vm.StackTop()
+		stackElem := vm.LastPoppedStackElem()
 		testExpectedObject(t, tt.expected, stackElem)
 
 	}
 }
 
+// testExpectedObject() checks the expected object against the actual object.
 func testExpectedObject(
 	t *testing.T,
 	expected interface{},
