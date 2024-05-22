@@ -423,3 +423,7 @@ more than `65536` constants in our Chui programs.
     15;
 ```
 - The stack stores each and every value from the program and that could fill up the stack with values not needed. To fix that we will introduce a new instruction `OpPop` that will pop the topmost element/value from the stack,and emit it after every expression statement.
+
+- It's worth noting that we do not need or include an `OpLessThan`, this is because we can do something called: reordering of code. Meaning 3 < 5 is the same as 5 > 3, without changing the result. This is a common optimization in compilers, and we will use it to our advantage. This way we can keep the instruction set small, and the loop of our VM tighter.
+
+    ![Locked In](./assets/locked-in.gif)
