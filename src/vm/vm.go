@@ -66,6 +66,16 @@ func (vm *VM) Run() error {
 			result := leftValue + rightValue
 			vm.push(&object.Integer{Value: result})
 
+		case code.OpSub:
+			right := vm.pop()
+			left := vm.pop()
+
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+
+			result := leftValue - rightValue
+			vm.push(&object.Integer{Value: result})
+
 		case code.OpPop:
 			vm.pop()
 

@@ -18,23 +18,6 @@ type compilerTestCase struct {
 
 func TestIntegerArithmetic(t *testing.T) {
 	tests := []compilerTestCase{
-		// {
-		// 	input:             "2 + 2",
-		// 	expectedConstants: []interface{}{2, 2},
-		// 	expectedInstructions: []code.Instructions{
-		// 		code.Make(code.OpConstant, 0),
-		// 		code.Make(code.OpConstant, 1),
-		// 	},
-		// },
-		// {
-		// 	input:             "1 + 2",
-		// 	expectedConstants: []interface{}{1, 2},
-		// 	expectedInstructions: []code.Instructions{
-		// 		code.Make(code.OpConstant, 0),
-		// 		code.Make(code.OpConstant, 1),
-		// 		code.Make(code.OpAdd),
-		// 	},
-		// },
 		{
 			input:             "1 + 2",
 			expectedConstants: []interface{}{1, 2},
@@ -42,6 +25,16 @@ func TestIntegerArithmetic(t *testing.T) {
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpConstant, 1),
 				code.Make(code.OpAdd),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             "3 - 2",
+			expectedConstants: []interface{}{3, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpSub),
 				code.Make(code.OpPop),
 			},
 		},
