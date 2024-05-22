@@ -10,17 +10,20 @@ import (
 	"fmt"
 )
 
+// Compiler is the compiler struct - it holds the bytecode instructions and the constant pool.
 type Compiler struct {
 	instructions code.Instructions
 	constants    []object.Object
 }
 
+// New() creates a new Compiler.
 func New() *Compiler {
 	return &Compiler{
 		instructions: code.Instructions{},
 		constants:    []object.Object{},
 	}
 }
+// Compile() compiles an AST node into bytecode instructions.
 
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
@@ -70,12 +73,14 @@ func (c *Compiler) Compile(node ast.Node) error {
 	return nil
 }
 
+// addConstant() adds a constant to the constant pool and returns its index.
 func (c *Compiler) addConstant(obj object.Object) int {
 	c.constants = append(c.constants, obj)
 
 	return len(c.constants) - 1
 }
 
+// emit() appends an instruction to the bytecode.
 func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 	ins := code.Make(op, operands...)
 	pos := c.addInstruction(ins)
@@ -83,6 +88,7 @@ func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 	return pos
 }
 
+// addInstruction() adds an instruction to the bytecode.
 func (c *Compiler) addInstruction(ins []byte) int {
 	posNewInstruction := len(c.instructions)
 	c.instructions = append(c.instructions, ins...)
@@ -90,6 +96,7 @@ func (c *Compiler) addInstruction(ins []byte) int {
 	return posNewInstruction
 }
 
+// Bytecode() returns the compiled bytecode.
 func (c *Compiler) Bytecode() *Bytecode {
 	return &Bytecode{
 		Instructions: c.instructions,
@@ -97,6 +104,7 @@ func (c *Compiler) Bytecode() *Bytecode {
 	}
 }
 
+// Bytecode is the Bytecode struct - it holds the bytecode instructions and the constant pool.
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object

@@ -10,6 +10,7 @@ import (
 	"testing"
 )
 
+// TestIntegerArithmetic() tests whether the VM can perform integer arithmetic.
 func TestIntegerArithmetic(t *testing.T) {
 	tests := []vmTestCase{
 		{"1", 1},
@@ -20,11 +21,13 @@ func TestIntegerArithmetic(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+// parse() parses the input string and returns the AST.
 func parse(input string) *ast.Program {
 	l := lexer.New(input)
 	p := parser.New(l)
 	return p.ParseProgram()
 }
+// testIntegerObject() tests the integer object.
 
 func testIntegerObject(expected int64, actual object.Object) error {
 	result, ok := actual.(*object.Integer)
@@ -50,6 +53,7 @@ type vmTestCase struct {
 func runVmTests(t *testing.T, tests []vmTestCase) {
 	t.Helper()
 
+	// Iterate over the tests.
 	for _, tt := range tests {
 		program := parse(tt.input)
 		comp := compiler.New()
@@ -81,6 +85,7 @@ func testExpectedObject(
 
 	switch expected := expected.(type) {
 
+	// If the expected value is an integer, test the integer object.
 	case int:
 		err := testIntegerObject(int64(expected), actual)
 		if err != nil {
