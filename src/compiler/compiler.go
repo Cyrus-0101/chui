@@ -12,19 +12,24 @@ import (
 
 // Compiler is the compiler struct - it holds the bytecode instructions and the constant pool.
 type Compiler struct {
-	instructions code.Instructions
-	constants    []object.Object
+	instructions        code.Instructions
+	constants           []object.Object
+	lastInstruction     EmittedInstruction
+	previousInstruction EmittedInstruction
 }
 
-// New() creates a new Compiler.
+// New() - Create a pointer to a new compiler instance and returns a reference/address where Compiler is stored in memory.
 func New() *Compiler {
 	return &Compiler{
-		instructions: code.Instructions{},
-		constants:    []object.Object{},
+		instructions:        code.Instructions{},
+		constants:           []object.Object{},
+		lastInstruction:     EmittedInstruction{},
+		previousInstruction: EmittedInstruction{},
 	}
 }
 
-// Compile() compiles an AST node into bytecode instructions.
+// Compile() - A struct that holds the state of the compiler including generated instructions, alist of constants and the last two instructions emitted.
+// It compiles an AST node into bytecode instructions.
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
 
@@ -126,6 +131,55 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.IntegerLiteral:
 		integer := &object.Integer{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(integer))
+
+	case *ast.BlockStatement:
+		for _, s := range node.Statements {
+			err := c.Compile(s)
+			if err != nil {
+				return err
+			}
+		}
+
+	case *ast.IfExpression:
+		err := c.Compile(node.Condition)
+		if err != nil {
+			return err
+		}
+
+		// Emit an `OpJumpNotTruthy` with a bogus value
+		jumpNotTruthyPos := c.emit(code.OpJumpNotTruthy, 9999)
+
+		err = c.Compile(node.Consequence)
+		if err != nil {
+			return err
+		}
+
+		if c.lastInstructionIsPop() {
+			c.removeLastPop()
+		}
+
+		// Emit an `OpJump` with a bogus value
+		jumpPos := c.emit(code.OpJump, 9999)
+
+		afterConsequencePos := len(c.instructions)
+		c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
+
+		if node.Alternative == nil {
+			c.emit(code.OpNull)
+		} else {
+			err := c.Compile(node.Alternative)
+			if err != nil {
+				return err
+			}
+
+			if c.lastInstructionIsPop() {
+				c.removeLastPop()
+			}
+		}
+
+		afterAlternativePos := len(c.instructions)
+		c.changeOperand(jumpPos, afterAlternativePos)
+
 	}
 
 	return nil
@@ -143,7 +197,18 @@ func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 	ins := code.Make(op, operands...)
 	pos := c.addInstruction(ins)
 
+	c.setLastInstruction(op, pos)
+
 	return pos
+}
+
+// setLastInstruction() sets the last instruction emitted by the compiler.
+func (c *Compiler) setLastInstruction(op code.Opcode, pos int) {
+	previous := c.lastInstruction
+	last := EmittedInstruction{Opcode: op, Position: pos}
+
+	c.previousInstruction = previous
+	c.lastInstruction = last
 }
 
 // addInstruction() adds an instruction to the bytecode.
@@ -152,6 +217,32 @@ func (c *Compiler) addInstruction(ins []byte) int {
 	c.instructions = append(c.instructions, ins...)
 
 	return posNewInstruction
+}
+
+// lastInstructionIsPop() checks if the last emitted instruction is a pop instruction.
+func (c *Compiler) lastInstructionIsPop() bool {
+	return c.lastInstruction.Opcode == code.OpPop
+}
+
+// replaceInstruction() replaces an instruction at a given position with a new instruction.
+func (c *Compiler) replaceInstruction(pos int, newInstruction []byte) {
+	for i := 0; i < len(newInstruction); i++ {
+		c.instructions[pos+i] = newInstruction[i]
+	}
+}
+
+// changeOperand() replaces the operand of an instruction.
+func (c *Compiler) changeOperand(opPos int, operand int) {
+	op := code.Opcode(c.instructions[opPos])
+	newInstruction := code.Make(op, operand)
+
+	c.replaceInstruction(opPos, newInstruction)
+}
+
+// removeLastPop() shortens `c.instructions` and removes the last emitted pop instruction, then sets the c.lastInstruction to the c.previousInstruction.
+func (c *Compiler) removeLastPop() {
+	c.instructions = c.instructions[:c.lastInstruction.Position]
+	c.lastInstruction = c.previousInstruction
 }
 
 // Bytecode() returns the compiled bytecode.
@@ -166,4 +257,10 @@ func (c *Compiler) Bytecode() *Bytecode {
 type Bytecode struct {
 	Instructions code.Instructions
 	Constants    []object.Object
+}
+
+// EmittedInstruction is a struct that holds the opcode and the position of the instruction in the bytecode.
+type EmittedInstruction struct {
+	Opcode   code.Opcode
+	Position int
 }
