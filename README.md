@@ -427,3 +427,48 @@ more than `65536` constants in our Chui programs.
 - It's worth noting that we do not need or include an `OpLessThan`, this is because we can do something called: reordering of code. Meaning 3 < 5 is the same as 5 > 3, without changing the result. This is a common optimization in compilers, and we will use it to our advantage. This way we can keep the instruction set small, and the loop of our VM tighter.
 
     ![Locked In](./assets/locked-in.gif)
+
+## Conditionals
+
+- In this [PR #3](https://github.com/Cyrus-0101/chui/pull/3), we will focus on one area, how to render conditionals. How we evaluate it is simple, when we come across the `*ast.IfExpression` in the `evaluator` package's `Eval` function, we evaluate the condition, and check the result with the `isTruthy` function. If the condition is true, we evaluate the `Consequence` of the `*ast.IfExpression`, if false, and the `*ast.IfExpression` has an `Alternative`, we `Eval` that instead, else we return *object.Null.
+
+- This was easy because we had the AST nodes readily available. but now intead of walking down the AST, and executing it at the same time, we now turn the AST into bytecode, and then execute it. We `Flatten` because bytecode is a sequence of instructions, no child nodes to traverse through.
+
+### Representing Conditionals in Bytecode
+- Given the following Chui code:
+```javascript
+    if (10 > 1) {
+        return 10;
+    } else {
+        return 1;
+    }
+```
+
+- We already know how to represent 10 > 1 in bytecode, we have the `OpGreaterThan` instruction. We also know how to represent the return statements, we have the `OpReturn` instruction. But we don't have an instruction to represent the `if` and `else` parts of the code. We need to introduce two new instructions: `OpJumpNotTruthy` and `OpJump`.
+
+#### Jumps
+- `Jumps` are instructions that tell machines to jump to other parts of the code. They are used to implement control flow, like loops and conditionals (branching). The `OpJumpNotTruthy` instruction will be used to jump to the `Alternative` part of the `if` expression, if the condition is not true. The `OpJump` instruction will be used to jump over the `Alternative` part, if the condition is true.
+
+- Let's take a look how that would look like:
+
+    ![Jump Illustration](./assets/jump.png)
+
+- The challenge is that we don't know where to jump to, because we don't know where the `Consequence` and `Alternative` parts of the `if` expression will end up in the bytecode. We need to know the position of the `Consequence` and `Alternative` parts in the bytecode, so we can jump to them.
+
+- `OpJumpNotTruthy` tells the VM to only jump to the value on top of the stack if it is not truthy i.e not false nor null. Its single operand is the offset of the instruction the VM should jump to.
+- `OpJump` tells the VM to just jump "there", its single operand is the offset of the instruction the VM should jump to.
+- Both operands of both opcodes are `uint16` meaning we don't need to extend our code toolingsince its similar to `OpConstant`.
+_ Its worth noting the following code:
+```javascript
+    if (true) {
+        3;
+        2;
+        1;
+    }
+```
+- What will happen is 3 and 2 will be popped from the stack, but the one will be kept around. We will use `back-patching`, a common approach in compilers, in this method, we only traverse the AST once, making it a single pass compiler. We will keep track of the positions in the bytecode where we need to jump to, and then fill in the correct offsets once we know where the `Consequence` and `Alternative` parts end up in the bytecode.
+
+#### Null
+
+- Yeah we kind of dropped this one, but its making a comeback. We make `*object.Null` a global variable similar to `*object.True` and `*object.False`. This means we don't unwrap it we just check if `object.Object` is `*object.Null` if its equal to `vm.Null`.
+- Conditionals with a false condition and no alternative are one of those things that return nothing and that nothing is `*object.Null`.
