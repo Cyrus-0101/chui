@@ -434,7 +434,6 @@ more than `65536` constants in our Chui programs.
 
 - This was easy because we had the AST nodes readily available. but now intead of walking down the AST, and executing it at the same time, we now turn the AST into bytecode, and then execute it. We `Flatten` because bytecode is a sequence of instructions, no child nodes to traverse through.
 
-### Representing Conditionals in Bytecode
 - Given the following Chui code:
 ```javascript
     if (10 > 1) {
@@ -472,3 +471,35 @@ _ Its worth noting the following code:
 
 - Yeah we kind of dropped this one, but its making a comeback. We make `*object.Null` a global variable similar to `*object.True` and `*object.False`. This means we don't unwrap it we just check if `object.Object` is `*object.Null` if its equal to `vm.Null`.
 - Conditionals with a false condition and no alternative are one of those things that return nothing and that nothing is `*object.Null`.
+
+## Global Bindings
+- In this [PR #4](https://github.com/Cyrus-0101/chui/pull/4), we will focus on bindings, by adding support for `let` statements and identifier expressions. We will be able to bind a value to a name and have the resolve to a value.
+- `let` statements are valid as top-level statements or inside a block statement, similar to the branches of a conditional or the body of a function. We will (for now) focus on adding support for top-level and non-function-body block-statement varieties.
+- This means the following expressions will work on our compiler:
+```javascript
+    let val = 2 * 2;
+
+    if (val > 3) {
+        let valY = x * x;
+        valY; // 16
+    }
+
+    let x = 33;
+    let y = 66;
+    let z = x + y;
+```
+- Here is how that will  look like:
+
+    ![Global Bindings](./assets/global-bindings.png)
+
+- We will introduce two new instructions: `OpSetGlobal` and `OpGetGlobal`. `OpSetGlobal` will be used to bind a value to a name, and `OpGetGlobal` will be used to resolve a name to a value.
+
+### Symbol Table
+- A `Symbol Table` is a data structure used in interpreters and compilers to associate different identifiers (like variable names) with values. It's a mapping of names to values, and it's used to keep track of the bindings in a program.
+- Information includes its scope, whether it was previously defined or not, its location, its type, etc. We will use it to to associate identifiers with a scope and a unique number. 
+- As of this [PR #4](https://github.com/Cyrus-0101/chui/pull/4) it should:
+1. Associate a unique number with each identifier (global scope only).
+1. Get the previously associated number for an identifier.
+
+- The common names for these twwo methods on the symbol table are `Define` and `Resolve`. `Define` is used to bind a name to a value in a given scope, and `Resolve` is used to look up the value associated with a name. The information is known as the symbol - an identifier is associated with a symbol and the symbol contains the information. 
+. 
