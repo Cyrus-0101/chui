@@ -10,6 +10,7 @@ import (
 	"fmt"
 )
 
+const GlobalsSize = 65536
 const StackSize = 2048
 
 var True = &object.Boolean{Value: true}
@@ -22,6 +23,7 @@ type VM struct {
 	instructions code.Instructions
 	stack        []object.Object
 	sp           int // Always points to the next value. Top of stack is stack[sp-1]
+	globals      []object.Object
 }
 
 // New() creates a new VM with the given bytecode.
@@ -31,7 +33,14 @@ func New(bytecode *compiler.Bytecode) *VM {
 		constants:    bytecode.Constants,
 		stack:        make([]object.Object, StackSize), // The stack is preallocated to have a StackSize number of elements, which should be enough for us
 		sp:           0,                                // sp will always point to the next free slot in the stack. If there’s one element on the stack, located at index 0, the value of sp would be 1 and to access the element we’d use stack[sp-1].
+		globals:      make([]object.Object, GlobalsSize),
 	}
+}
+
+func NewWithGlobalStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := New(bytecode)
+	vm.globals = s
+	return vm
 }
 
 // StackTop() pushes an object onto the stack.
@@ -115,6 +124,21 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case code.OpGetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+
+			err := vm.push(vm.globals[globalIndex])
+			if err != nil {
+				return err
+			}
+
+		case code.OpSetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
+			ip += 2
+
+			vm.globals[globalIndex] = vm.pop()
 
 		case code.OpPop:
 			vm.pop()

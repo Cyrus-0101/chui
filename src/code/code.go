@@ -30,6 +30,8 @@ const (
 	OpJumpNotTruthy
 	OpJump
 	OpNull
+	OpGetGlobal
+	OpSetGlobal
 )
 
 // Definition represents the definition of an opcode, including its name and the widths of its operands, which is used to determine how many bytes to read to extract the operands.
@@ -56,6 +58,8 @@ var definitions = map[Opcode]*Definition{
 	OpJumpNotTruthy: {"OpJumpNotTruthy", []int{2}},
 	OpJump:          {"OpJump", []int{2}},
 	OpNull:          {"OpNull", []int{}},
+	OpGetGlobal:     {"OpGetGlobal", []int{2}},
+	OpSetGlobal:     {"OpSetGlobal", []int{2}},
 }
 
 // Lookup() retrieves the definition of an opcode.
