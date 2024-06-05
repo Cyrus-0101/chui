@@ -87,7 +87,7 @@ let cyrus = { name: "Cyrus", age: 26 };
 numArray[0]; // 1
 
 // Accessing property values in hashes
-cyrus("name"); // Cyrus
+cyrus["name"]; // Cyrus
 ```
 
 - The `let` keyword is used to declare variables in Chui, above is how we bind variables to values, and some Data Structures. `let` can also be used to bind function names.
@@ -502,4 +502,9 @@ _ Its worth noting the following code:
 1. Get the previously associated number for an identifier.
 
 - The common names for these twwo methods on the symbol table are `Define` and `Resolve`. `Define` is used to bind a name to a value in a given scope, and `Resolve` is used to look up the value associated with a name. The information is known as the symbol - an identifier is associated with a symbol and the symbol contains the information. 
-. 
+
+## String, Array and Hash
+
+### Strings
+- In this [PR #5](https://github.com/Cyrus-0101/chui/pull/5), we will focus on adding support for string, array and hash literals. We will be able to create and manipulate strings, arrays and hashes in Chui. Just as similar in Integer literals, we can turn them into `*object.String` at compile time and add them to the constant pool in `compiler.Bytecode`. This means we can implemement string concatenation simulataneously.
+
