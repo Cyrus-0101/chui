@@ -508,3 +508,24 @@ _ Its worth noting the following code:
 ### Strings
 - In this [PR #5](https://github.com/Cyrus-0101/chui/pull/5), we will focus on adding support for string, array and hash literals. We will be able to create and manipulate strings, arrays and hashes in Chui. Just as similar in Integer literals, we can turn them into `*object.String` at compile time and add them to the constant pool in `compiler.Bytecode`. This means we can implemement string concatenation simulataneously.
 
+### Arrays
+- Arrays in Chui will be our first [composite data type](https://en.wikipedia.org/wiki/Composite_data_type). This means, generally, arrays are composed out of other data types. The downside is we cannot treat array literals as constants, since they can be modified at runtime. Here's an example:
+
+```shell
+    [1 + 2, 3 + 4, 5 + 6]
+```
+
+- An optimising compiler, could easily optimise these, but they can include: `integer literals`, `string concatenation`, `function literals`, `function calls` etc. Only at run time, can we determine what they evaluate to. 
+- Instead of building an array at compile time and passing it to the VM in the constant pool, we'll tell the VM how to build its own. We will have to create a new instruction `OpArray` to create arrays at runtime. We will also have to create a new instruction `OpIndex` to access elements in an array.
+
+-Since these are `*ast.Expressions`, compiling thme results in instructions that leave N values on the VM's stack, where N is the Number of elements in the array literal. We then emit `OpArray` instruction with the operand being N, the number of elements. When the VM encounters `OpArray`, it will pop N values from the stack, and create an `*object.Array` with those values.
+
+### Hashes
+- Similarly, we need a new OpCOde, just like in an array, its final value can be determined at compile time. Actually doubke the case, since `Chui`'s hash has N keys and N values and all of them are created by expressions:
+
+```shell
+    {1 + 1: 2 * 2, 3 + 3: 4 * 4}
+    # {2: 4, 6: 16}
+```
+
+- We will introduce a new instruction `OpHash` to create hashes at runtime. We will also introduce a new instruction `OpIndex` to access elements in a hash. The `OpIndex` instruction will be used to look up values in hashes by their keys. but we'll deal with that in a seperate commit.
