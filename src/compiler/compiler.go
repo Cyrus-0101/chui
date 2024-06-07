@@ -38,7 +38,7 @@ func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
 	return compiler
 }
 
-// Compile() - A struct that holds the state of the compiler including generated instructions, alist of constants and the last two instructions emitted.
+// Compile() - A struct that holds the state of the compiler including generated instructions, a list of constants and the last two instructions emitted.
 // It compiles an AST node into bytecode instructions.
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
@@ -210,6 +210,17 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		c.emit(code.OpGetGlobal, symbol.Index)
+
+	case *ast.ArrayLiteral:
+		for _, el := range node.Elements {
+			err := c.Compile(el)
+			if err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpArray, len(node.Elements))
+
 	}
 
 	return nil
