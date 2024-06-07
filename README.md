@@ -87,7 +87,7 @@ let cyrus = { name: "Cyrus", age: 26 };
 numArray[0]; // 1
 
 // Accessing property values in hashes
-cyrus("name"); // Cyrus
+cyrus["name"]; // Cyrus
 ```
 
 - The `let` keyword is used to declare variables in Chui, above is how we bind variables to values, and some Data Structures. `let` can also be used to bind function names.
@@ -502,4 +502,30 @@ _ Its worth noting the following code:
 1. Get the previously associated number for an identifier.
 
 - The common names for these twwo methods on the symbol table are `Define` and `Resolve`. `Define` is used to bind a name to a value in a given scope, and `Resolve` is used to look up the value associated with a name. The information is known as the symbol - an identifier is associated with a symbol and the symbol contains the information. 
-. 
+
+## String, Array and Hash
+
+### Strings
+- In this [PR #5](https://github.com/Cyrus-0101/chui/pull/5), we will focus on adding support for string, array and hash literals. We will be able to create and manipulate strings, arrays and hashes in Chui. Just as similar in Integer literals, we can turn them into `*object.String` at compile time and add them to the constant pool in `compiler.Bytecode`. This means we can implemement string concatenation simulataneously.
+
+### Arrays
+- Arrays in Chui will be our first [composite data type](https://en.wikipedia.org/wiki/Composite_data_type). This means, generally, arrays are composed out of other data types. The downside is we cannot treat array literals as constants, since they can be modified at runtime. Here's an example:
+
+```shell
+    [1 + 2, 3 + 4, 5 + 6]
+```
+
+- An optimising compiler, could easily optimise these, but they can include: `integer literals`, `string concatenation`, `function literals`, `function calls` etc. Only at run time, can we determine what they evaluate to. 
+- Instead of building an array at compile time and passing it to the VM in the constant pool, we'll tell the VM how to build its own. We will have to create a new instruction `OpArray` to create arrays at runtime. We will also have to create a new instruction `OpIndex` to access elements in an array.
+
+-Since these are `*ast.Expressions`, compiling thme results in instructions that leave N values on the VM's stack, where N is the Number of elements in the array literal. We then emit `OpArray` instruction with the operand being N, the number of elements. When the VM encounters `OpArray`, it will pop N values from the stack, and create an `*object.Array` with those values.
+
+### Hashes
+- Similarly, we need a new OpCOde, just like in an array, its final value can be determined at compile time. Actually doubke the case, since `Chui`'s hash has N keys and N values and all of them are created by expressions:
+
+```shell
+    {1 + 1: 2 * 2, 3 + 3: 4 * 4}
+    # {2: 4, 6: 16}
+```
+
+- We will introduce a new instruction `OpHash` to create hashes at runtime. We will also introduce a new instruction `OpIndex` to access elements in a hash. The `OpIndex` instruction will be used to look up values in hashes by their keys. but we'll deal with that in a seperate commit.

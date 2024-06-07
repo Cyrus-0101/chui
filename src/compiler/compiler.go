@@ -8,6 +8,7 @@ import (
 	"chui/code"
 	"chui/object"
 	"fmt"
+	"sort"
 )
 
 // Compiler is the compiler struct - it holds the bytecode instructions and the constant pool.
@@ -38,7 +39,7 @@ func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
 	return compiler
 }
 
-// Compile() - A struct that holds the state of the compiler including generated instructions, alist of constants and the last two instructions emitted.
+// Compile() - A struct that holds the state of the compiler including generated instructions, a list of constants and the last two instructions emitted.
 // It compiles an AST node into bytecode instructions.
 func (c *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
@@ -142,6 +143,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 		integer := &object.Integer{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(integer))
 
+	case *ast.StringLiteral:
+		str := &object.String{Value: node.Value}
+		c.emit(code.OpConstant, c.addConstant((str)))
+
 	case *ast.BlockStatement:
 		for _, s := range node.Statements {
 			err := c.Compile(s)
@@ -206,6 +211,44 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		c.emit(code.OpGetGlobal, symbol.Index)
+
+	case *ast.ArrayLiteral:
+		for _, el := range node.Elements {
+			err := c.Compile(el)
+			if err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpArray, len(node.Elements))
+
+	case *ast.HashLiteral:
+		keys := []ast.Expression{}
+
+		for k := range node.Pairs {
+			keys = append(keys, k)
+		}
+
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i].String() < keys[j].String()
+		})
+
+		for _, k := range keys {
+			err := c.Compile(k)
+			if err != nil {
+				return err
+			}
+
+			err = c.Compile(node.Pairs[k])
+			if err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpHash, len(node.Pairs)*2)
+
+	case *ast.IndexExpression:
+
 	}
 
 	return nil
